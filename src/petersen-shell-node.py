@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 import listcolouring
 
@@ -10,11 +11,26 @@ G = list_init_node(G, range(0, 6), 3, 0)
 
 G = greedy_list_node_colouring(G)
 
-colors = nx.get_node_attributes(G, 'colour').values()
-
-options = {'with_labels': False, "edge_cmap": plt.cm.tab10}
-
 G_layout = nx.shell_layout(G, nlist = [range(5, 10), range(5)], rotate = 0.)
-nx.draw(G, G_layout, edge_color = "grey", node_color = list(colors), width = 5, node_size = 250, **options)
+node_labels = dict([(n, str(d['colour']) + ': ' + str(d['permissible'])) for n, d in G.nodes(data = True)])
+
+node_colors = set(nx.get_node_attributes(G, 'colour').values())
+
+patches = [mpatches.Patch(color = plt.cm.tab10(i), label = f'{i}') for i in node_colors]
+
+nx.draw(G,
+               pos = G_layout,
+        edge_color = "black",
+        node_color = list(nx.get_node_attributes(G, 'colour').values()),
+        node_shape = 's',
+             width = 10,
+         node_size = 1300,
+              cmap = plt.cm.tab10,
+            labels = node_labels,
+         font_size = 6,
+       with_labels = True
+)
+
+plt.legend(handles = patches, title = "Colours", bbox_to_anchor = (1, 1))
 
 plt.savefig("png/petersen-shell-node.png", format = "PNG")
